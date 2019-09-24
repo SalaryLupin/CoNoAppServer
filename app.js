@@ -6,6 +6,10 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+// custom middleware
+var appUser = require("./middleware/appuser")
+app.use(appUser)
+
 // router
 app.use("/api", require("./api"))
 
