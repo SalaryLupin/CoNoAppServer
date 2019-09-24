@@ -31,6 +31,8 @@ strText : 검색어
 exports.search = (req, res) => {
 
   var strText = req.query.keyword
+  var strType = req.query.type
+  var typeIdx = typeStr.indexOf(strType)
   var strCond = "0"
   var url = "https://www.tjmedia.co.kr/tjsong/song_search_list.asp"
   console.log(strText)
@@ -53,7 +55,9 @@ exports.search = (req, res) => {
   request(options, function (error, response, body) {
     if (error) { return res.status(400).json({error: "internal-server-error"}) }
     var $ = cheerio.load(body);
+
     $("#BoardType1").each(function(index, item){ // each song list
+      if (typeIdx != -1 && index != typeIdx) { return } // chk type
       var songs = []
       $(this).find("tr").each(function(index, item){ // each song
         // no list
