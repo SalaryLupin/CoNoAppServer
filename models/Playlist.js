@@ -1,6 +1,6 @@
 module.exports =(sequelize, DataTypes) => {
   var playlist = sequelize.define('Playlist', {
-    id: {
+    playlistId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
@@ -23,8 +23,8 @@ module.exports =(sequelize, DataTypes) => {
   });
 
   playlist.associate = function (models) {
-    playlist.hasMany(models.SongList);
-    playlist.hasMany(models.PlaylistShare);
+    playlist.hasMany(models.SongList, { foreignKey: "playlistId" });
+    playlist.hasMany(models.PlaylistShare, { foreignKey: "playlistId" });
   };
 
   return playlist;

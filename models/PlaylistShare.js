@@ -2,10 +2,12 @@ module.exports =(sequelize, DataTypes) => {
   var playlistShare = sequelize.define('PlaylistShare', {
     playlistId: {
       type: DataTypes.INTEGER,
-      primaryKey: true
+      allowNull: false,
+      primaryKey: true,
     },
     userId: {
       type: DataTypes.STRING,
+      allowNull: false,
       primaryKey: true
     }
   },

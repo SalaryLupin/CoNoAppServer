@@ -25,12 +25,6 @@ fs
     db[model.name] = model;
   });
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
-
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
@@ -40,5 +34,11 @@ db.Relationship = require("./Relationship")(sequelize, Sequelize);
 db.SongList = require("./SongList")(sequelize, Sequelize);
 db.SongTag = require("./SongTag")(sequelize, Sequelize);
 db.User = require("./User")(sequelize, Sequelize);
+
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 module.exports = db;

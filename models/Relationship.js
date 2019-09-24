@@ -2,10 +2,12 @@ module.exports =(sequelize, DataTypes) => {
   var relationship = sequelize.define('Relationship', {
     relatingUserId: {
       type: DataTypes.STRING,
+      allowNull: false,
       primaryKey: true
     },
     relatedUserId: {
       type: DataTypes.STRING,
+      allowNull: false,
       primaryKey: true
     }
   },
@@ -18,8 +20,6 @@ module.exports =(sequelize, DataTypes) => {
       foreignKey: "relatingUserId",
       onDelete: "cascade"
     })
-  };
-  relationship.associate = function (models) {
     relationship.belongsTo(models.User, {
       foreignKey: "relatedUserId",
       onDelete: "cascade"
