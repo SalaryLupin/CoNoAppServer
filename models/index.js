@@ -35,5 +35,10 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.Playlist = require("./Playlist")(sequelize, Sequelize);
+db.PlaylistShare = require("./PlaylistShare")(sequelize, Sequelize);
+db.Relationship = require("./Relationship")(sequelize, Sequelize);
+db.SongList = require("./SongList")(sequelize, Sequelize);
+db.SongTag = require("./SongTag")(sequelize, Sequelize);
+db.User = require("./User")(sequelize, Sequelize);
 
 module.exports = db;

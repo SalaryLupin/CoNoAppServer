@@ -1,5 +1,5 @@
 module.exports =(sequelize, DataTypes) => {
-  return sequelize.define('Playlist', {
+  var playlist = sequelize.define('Playlist', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -21,4 +21,11 @@ module.exports =(sequelize, DataTypes) => {
   {
     timestamps: true,
   });
+
+  playlist.associate = function (models) {
+    playlist.hasMany(models.SongList);
+    playlist.hasMany(models.PlaylistShare);
+  };
+
+  return playlist;
 };
