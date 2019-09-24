@@ -9,8 +9,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 // router
 app.use("/api", require("./api"))
 
-app.listen(80, function(){
+var sequelize = require('./models/index').sequelize;
+
+app.listen(3000, function(){
   console.log("서버가 열렸습니다.");
+  sequelize.sync()
 });
 
 module.exports = app;
