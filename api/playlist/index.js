@@ -1,8 +1,25 @@
-const express = require("express")
-const router = express.Router()
-const playlistController = require("./playlist.controller")
+const express = require("express");
+const router = express.Router();
 
-router.get("/", playlistController.index);
-router.get("/:playlistId", playlistController.show);
+const plc = require("./playlist.controller");
 
-module.exports = router
+
+// 플레이리스트에 곡을 제거하는 api
+router.delete("/:playlistId/song/delete");
+// 플레이리스트의 곡 정보를 가져오는 api
+router.post("/:playlistId/song/list");
+router.post("/:playlistId/song/:songId");
+// 플레이리스트에 곡을 추가하는 api
+router.post("/:playlistId/song");
+
+// 플레이리스트에 유저를 초대하는 api
+router.post("/:playlistId/member");
+// 공유된 플레이리스트에서 나가는 api
+router.delete("/:playlistId/member");
+// 유저의 플레이리스트의 정보를 가져오는 api
+router.get("/list", plc.index);
+router.get("/:playlistId", plc.show);
+// 플레이리스트를 추가하는 api
+router.post("/", plc.add);
+
+module.exports = router;

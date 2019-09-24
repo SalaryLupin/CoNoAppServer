@@ -16,7 +16,7 @@ function parseToken(token){
 router.use("/", function(req, res, next){
 
   console.log("approach appuser");
-  
+
   // 데이터 파싱
   let ver = req.header.Ver;
   let os = req.header.Os;
@@ -33,3 +33,12 @@ router.use("/", function(req, res, next){
 
 
 module.exports = router;
+exports.isLogin = (req, res) => {
+  if (req.AppUser && req.AppUser.userId) {
+    return true;
+  }
+  else {
+    res.status(300).json({error: "Invalid Access"})
+    return false;
+  }
+}
