@@ -18,7 +18,10 @@ exports.show = (req, res) => {
   models.Playlist
     .findOne({
       where: { playlistId: playlistId },
-      include: { model: models.SongList }
+      include: [
+        { model: models.SongList },
+        { model: models.PlaylistShare }
+      ]
     })
     .then((result) => {
       res.json(result);
@@ -68,6 +71,7 @@ exports.inviteMember = (req, res) => {
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
   let friends = req.body.friends
+  console.log(friends)
 
   if (!playlistId) {
     res.status(400).json({error: "Invalid Playlist"})
@@ -79,7 +83,7 @@ exports.inviteMember = (req, res) => {
     return;
   }
 
-  function addPlaylistSharer(playlist, friends){
+  function addPlaylistSharer(playlist){
     return new Promise(function(resolve, reject){
       if (playlist) {
         models.PlaylistShare
@@ -100,7 +104,7 @@ exports.inviteMember = (req, res) => {
       where: { playlistId: playlistId }
     })
     .then(result => {
-      addPlaylistSharer(result, friends)
+      addPlaylistSharer(result)
     })
     .catch(err => {
       console.log(err);
