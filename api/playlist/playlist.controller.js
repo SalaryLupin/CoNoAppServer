@@ -4,6 +4,9 @@ const appUser = require("../../middleware/appuser")
 
 // show all playlists
 exports.index = (req, res) => {
+
+  if (!appUser.isLogin(req, res)){ return; }
+
   console.log("index approach")
   models.Playlist
     .findAll()
@@ -13,6 +16,9 @@ exports.index = (req, res) => {
 }
 
 exports.show = (req, res) => {
+
+  if (!appUser.isLogin(req, res)){ return; }
+
   console.log("show approach")
   let playlistId = req.params.playlistId
   models.Playlist
@@ -30,9 +36,7 @@ exports.show = (req, res) => {
 
 exports.add = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){
-    return
-  }
+  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("add approach")
 
@@ -67,7 +71,7 @@ exports.add = (req, res) => {
 
 exports.leavePlaylist = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
 
@@ -86,7 +90,7 @@ exports.leavePlaylist = (req, res) => {
 
 exports.listMember = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
 
@@ -107,7 +111,7 @@ exports.listMember = (req, res) => {
 // 플레이리스트에서 유저를 초대하는 api
 exports.inviteMember = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
   let friends = req.body.friends ? req.body.friends : []

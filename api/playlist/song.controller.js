@@ -5,7 +5,7 @@ const appUser = require("../../middleware/appuser")
 // show all song
 exports.list = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
 
@@ -27,7 +27,7 @@ exports.list = (req, res) => {
 */
 exports.show = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("show approach")
   let playlistId = req.params.playlistId
@@ -46,7 +46,7 @@ exports.show = (req, res) => {
 */
 exports.add = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("add approach")
 
@@ -71,7 +71,7 @@ exports.add = (req, res) => {
 */
 exports.delete = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("add approach")
 
