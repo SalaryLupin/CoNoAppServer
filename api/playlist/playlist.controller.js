@@ -68,9 +68,11 @@ exports.add = (req, res) => {
 // 플레이리스트에서 유저를 초대하는 api
 exports.inviteMember = (req, res) => {
 
+  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
-  let friends = req.body.friends
+  let friends = req.body.friends ? req.body.friends : []
+  console.log(req.body)
   console.log(friends)
 
   if (!playlistId) {
@@ -89,13 +91,15 @@ exports.inviteMember = (req, res) => {
         models.PlaylistShare
           .bulkCreate(friends.map(name => {
             return {
-              playlistId: result.playlistId,
+              playlistId: playlist.playlistId,
               userId: name
             }
           }))
           .then(resolve)
       }
-      reject("No Playlist")
+      else {
+        reject("No Playlist")
+      }
     });
   }
 
@@ -106,8 +110,11 @@ exports.inviteMember = (req, res) => {
     .then(result => {
       addPlaylistSharer(result)
     })
+    .then(result => {
+      res.json(result)
+    })
     .catch(err => {
-      console.log(err);
+      res.status(400).json({err: "Invalid Playlist Id"})
     });
 
 }
