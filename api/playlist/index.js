@@ -13,7 +13,7 @@ router.post("/:playlistId/song/:songId");
 router.post("/:playlistId/song");
 
 // 플레이리스트에 유저를 초대하는 api
-router.post("/:playlistId/member");
+router.post("/:playlistId/member", plc.inviteMember);
 // 공유된 플레이리스트에서 나가는 api
 router.delete("/:playlistId/member");
 // 유저의 플레이리스트의 정보를 가져오는 api
