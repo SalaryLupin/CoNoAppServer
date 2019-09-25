@@ -8,8 +8,19 @@ exports.index = (req, res) => {
   if (!appUser.isLogin(req, res)){ return; }
 
   console.log("index approach")
-  models.Playlist
-    .findAll()
+  models.PlaylistShare
+    .findAll({
+      where: { userId: req.AppUser.userId },
+      attributes: [],
+      include: {
+        model: models.Playlist,
+        attributes: [ "playlistId", "title", "place", "startedAt" ],
+        include: [
+          { model: models.SongList, attributes: ["songId"] },
+          { model: models.PlaylistShare, attributes: [ "userId" ] },
+        ]
+      }
+    })
     .then((result) => {
       res.json(result);
     })
@@ -28,15 +39,17 @@ exports.show = (req, res) => {
   models.Playlist
     .findOne({
       where: { playlistId: playlistId },
+      attributes: [ "playlistId", "title", "place", "startedAt" ],
       include: [
-        { model: models.SongList },
-        { model: models.PlaylistShare }
+          { model: models.SongList, attributes: ["songId"] },
+          { model: models.PlaylistShare, attributes: [ "userId" ] },
       ]
     })
     .then((result) => {
       res.json(result);
     })
     .catch(err => {
+      console.log
       req.Error.internal(res)
     })
 }
