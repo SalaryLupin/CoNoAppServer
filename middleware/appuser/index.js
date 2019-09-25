@@ -32,13 +32,15 @@ router.use("/", function(req, res, next){
 });
 
 
-module.exports = router;
-exports.isLogin = (req, res) => {
-  if (req.AppUser && req.AppUser.userId) {
-    return true;
+module.exports = {
+  module: router,
+  isLogin: (req, res) => {
+    if (req.AppUser && req.AppUser.userId) {
+      return true;
+    }
+    else {
+      res.status(300).json({error: "Invalid Access"})
+      return false;
+    }
   }
-  else {
-    res.status(300).json({error: "Invalid Access"})
-    return false;
-  }
-}
+};

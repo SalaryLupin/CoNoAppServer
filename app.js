@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // custom middleware
 var appUser = require("./middleware/appuser")
-app.use(appUser)
+app.use(appUser.module)
 
 // router
 app.use("/api", require("./api"))
