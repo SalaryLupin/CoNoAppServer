@@ -65,6 +65,45 @@ exports.add = (req, res) => {
   })
 }
 
+exports.leavePlaylist = (req, res) => {
+
+  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  let playlistId = req.params.playlistId;
+  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
+
+  models.PlaylistShare
+    .destroy({
+      where: { playlistId: playlistId, userId: userId }
+    })
+    .then(result => {
+      res.json(result)
+    })
+    .catch(err => {
+      res.status(400).json({err: "Internal Server Error"})
+    })
+
+}
+
+exports.listMember = (req, res) => {
+
+  if (!appUser.isLogin(req, res)){ res.status(400).json({err: "Invalid Account"}) }
+  let playlistId = req.params.playlistId;
+  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
+
+  models.PlaylistShare
+    .findAll({
+      where: { playlistId: playlistId },
+      attributes: ["userId"]
+    })
+    .then(result => {
+      res.json(result)
+    })
+    .catch(err => {
+      res.status(400).json({err: "Internal Server Error"})
+    })
+
+}
+
 // 플레이리스트에서 유저를 초대하는 api
 exports.inviteMember = (req, res) => {
 

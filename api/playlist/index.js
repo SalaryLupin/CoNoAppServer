@@ -12,10 +12,12 @@ router.post("/:playlistId/song/:songId");
 // 플레이리스트에 곡을 추가하는 api
 router.post("/:playlistId/song");
 
+// 플레이리스트 유저 목록을 보는 api
+router.get("/:playlistId/member", plc.listMember);
 // 플레이리스트에 유저를 초대하는 api
 router.post("/:playlistId/member", plc.inviteMember);
 // 공유된 플레이리스트에서 나가는 api
-router.delete("/:playlistId/member");
+router.delete("/:playlistId/member", plc.leavePlaylist);
 // 유저의 플레이리스트의 정보를 가져오는 api
 router.get("/list", plc.index);
 router.get("/:playlistId", plc.show);
