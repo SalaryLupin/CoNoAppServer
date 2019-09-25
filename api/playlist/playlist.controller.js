@@ -13,6 +13,10 @@ exports.index = (req, res) => {
     .then((result) => {
       res.json(result);
     })
+    .catch((err) => {
+      console.log(err)
+      req.Error.internal(res);
+    })
 }
 
 exports.show = (req, res) => {
@@ -31,6 +35,9 @@ exports.show = (req, res) => {
     })
     .then((result) => {
       res.json(result);
+    })
+    .catch(err => {
+      req.Error.internal(res)
     })
 }
 

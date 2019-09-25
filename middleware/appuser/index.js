@@ -39,7 +39,7 @@ module.exports = {
       return true;
     }
     else {
-      res.status(300).json({error: "Invalid Access"})
+      req.Error.noAuthorization(res)
       return false;
     }
   }
