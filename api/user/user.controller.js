@@ -2,7 +2,15 @@ const models = require("../../models")
 const jwt = require('jsonwebtoken')
 
 function validateUser(userId, userPw){
-  return true
+
+  if (!userId || !userPw) return false;
+
+  // id 는 핸드폰 번호만 가능
+  const idRegExp = /^[0-9]{11}$/;
+  // pw는 특수문자 포함 8글자 이상 20글자 이하
+  const pwRegExp = /^[a-zA-Z0-9!@]{8,20}$/;
+  return idRegExp.test(userId) && pwRegExp.test(userPw)
+
 }
 
 exports.login = (req, res) => {
@@ -13,6 +21,7 @@ exports.login = (req, res) => {
   console.log(secret)
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
+    return
   }
 
   const check = (user) => {
@@ -70,6 +79,7 @@ exports.register = (req, res) => {
 
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
+    return
   }
 
   models.User
