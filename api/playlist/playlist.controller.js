@@ -8,6 +8,9 @@ exports.getPlaylist = (req, res, next) => {
 
   let userId = req.AppUser.userId
   let playlistId = req.params.playlistId
+  if (!playlistId || !Number(playlistId)) {
+    req.Error.wrongParameter(res, "playlistId is needed")
+  }
 
   models.PlaylistShare
     .findOne({
@@ -68,6 +71,7 @@ exports.index = (req, res) => {
 
 exports.show = (req, res) => {
 
+  req.Playlist = req.Playlist.Playlist
   res.json(req.Playlist)
 
 }
