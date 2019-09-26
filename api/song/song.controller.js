@@ -1,6 +1,7 @@
 
 const request = require("request")
 const cheerio = require('cheerio');
+const models = require("../../models")
 
 const typeStr = [
   "title",
@@ -27,6 +28,33 @@ strType :
 strCond : "1" or "0". 단일 검색 여부
 strText : 검색어
 */
+
+exports.indexTag = (req, res) => {
+
+  let userId = req.AppUser.userId
+
+  models.SongTag
+    .findAll({
+      where: { userId: userId}
+    })
+    .then(result => res.json(result))
+
+}
+
+exports.addTag = (req, res) => {
+
+  let userId = req.AppUser.userId
+  let songId = req.params.songId
+  let tags = req.body.tags
+
+  models.SongTag
+    .upsert(tags, {
+      where: { userId: userId, songId: songId }
+    })
+    //.then(models.SongTag.findOne({ where: { userId: userId, songId: songId }}))
+    .then(result => res.json(result))
+
+}
 
 exports.search = (req, res) => {
 

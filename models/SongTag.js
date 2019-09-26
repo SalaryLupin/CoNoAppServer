@@ -11,13 +11,9 @@ module.exports =(sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey: true,
     },
-    category: {
+    tags: {
       type: DataTypes.STRING,
-      primaryKey: true
-    },
-    tagId: {
-      type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     }
   },
   {
@@ -27,7 +23,7 @@ module.exports =(sequelize, DataTypes) => {
   songTag.associate = function(models){
     songTag.belongsTo(models.User, {
       foreignKey: "userId",
-      onDelete: "cascade" 
+      onDelete: "cascade"
     })
   };
 
