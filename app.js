@@ -1,6 +1,9 @@
 var express = require("express");
 var app = express();
 
+// jwt
+app.set("jwt-secret", require("./config/token").jwtSecret)
+
 // body parser
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());

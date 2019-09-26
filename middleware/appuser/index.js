@@ -8,9 +8,16 @@
 
 const express = require("express");
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-function parseToken(token){
-  return "TestAccount"
+function parseToken(token, secret){
+
+  if (!token) return null;
+  let decoded = jwt.verify(token, secret)
+  if (decoded) {
+    return decoded.userId
+  }
+
 }
 
 router.use("/", function(req, res, next){
@@ -18,11 +25,10 @@ router.use("/", function(req, res, next){
   console.log("approach appuser");
 
   // 데이터 파싱
-  let ver = req.header.Ver;
-  let os = req.header.Os;
-  let token = req.header.Token;
-  let user = parseToken(token);
-
+  let ver = req.header("Ver");
+  let os = req.header("Os");
+  let token = req.header("Token");
+  let user = parseToken(token, req.app.get("jwt-secret"));
   req.AppUser = {
     ver: ver,
     userId: user,
