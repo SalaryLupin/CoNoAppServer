@@ -12,8 +12,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 // custom middleware
 const error = require("./middleware/error")
 app.use(error.initModule)
-var appUser = require("./middleware/appuser")
-app.use(appUser.module)
 
 // router
 app.use("/api", require("./api"))

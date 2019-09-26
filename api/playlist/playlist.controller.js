@@ -1,10 +1,7 @@
 const models = require("../../models")
 const moment = require('moment');
-const appUser = require("../../middleware/appuser")
 
 exports.getPlaylist = (req, res, next) => {
-
-  if (!appUser.isLogin(req, res)){ return; }
 
   let userId = req.AppUser.userId
   let playlistId = req.params.playlistId
@@ -45,8 +42,6 @@ exports.getPlaylist = (req, res, next) => {
 // show all playlists
 exports.index = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
-
   console.log("index approach")
   models.PlaylistShare
     .findAll({
@@ -77,8 +72,6 @@ exports.show = (req, res) => {
 }
 
 exports.add = (req, res) => {
-
-  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("add approach")
 
@@ -113,9 +106,8 @@ exports.add = (req, res) => {
 
 exports.leavePlaylist = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
-  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
+  let userId = req.AppUser.userId
 
   models.PlaylistShare
     .destroy({
@@ -133,10 +125,9 @@ exports.leavePlaylist = (req, res) => {
 
 exports.listMember = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
-  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
-
+  let userId = req.AppUser.userId
+  
   models.PlaylistShare
     .findAll({
       where: { playlistId: playlistId },
@@ -155,7 +146,6 @@ exports.listMember = (req, res) => {
 // 플레이리스트에서 유저를 초대하는 api
 exports.inviteMember = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
   let userId = req.AppUser.userId
   let friends = req.body.friends ? req.body.friends : []

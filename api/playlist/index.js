@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const appUser = require("../../middleware/appuser");
 
 const plc = require("./playlist.controller");
 const sc = require("./song.controller")
 
+// 유저가 계정 정보를 가지고 있는지 확인
+router.use("/", appUser.checkLogin);
 
 // 유저가 플레이리스트를 가지고 있는지 확인
 router.use("/:playlistId", plc.getPlaylist)

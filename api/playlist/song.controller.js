@@ -1,13 +1,11 @@
 const models = require("../../models")
 const moment = require('moment');
-const appUser = require("../../middleware/appuser")
 
 // show all song
 exports.list = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
-  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
+  let userId = req.AppUser.userId
 
   models.SongList
     .findAll({
@@ -27,8 +25,6 @@ exports.list = (req, res) => {
 */
 exports.show = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
-
   console.log("show approach")
   let playlistId = req.params.playlistId
   let songId = req.params.songId
@@ -45,8 +41,6 @@ exports.show = (req, res) => {
   플레이리스트에 곡을 추가하는 api
 */
 exports.add = (req, res) => {
-
-  if (!appUser.isLogin(req, res)){ return; }
 
   console.log("add approach")
 
@@ -70,9 +64,6 @@ exports.add = (req, res) => {
   플레이리스트에 곡을 제거하는 api
 */
 exports.delete = (req, res) => {
-
-  if (!appUser.isLogin(req, res)){ return; }
-
   console.log("add approach")
 
   let playlistId = req.params.playlistId;

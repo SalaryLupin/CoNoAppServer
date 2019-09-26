@@ -20,33 +20,26 @@ function parseToken(token, secret){
 
 }
 
-router.use("/", function(req, res, next){
-
-  console.log("approach appuser");
-
-  // 데이터 파싱
-  let ver = req.header("Ver");
-  let os = req.header("Os");
-  let token = req.header("Token");
-  let user = parseToken(token, req.app.get("jwt-secret"));
-  req.AppUser = {
-    ver: ver,
-    userId: user,
-    os: os
-  }
-  next();
-});
-
-
 module.exports = {
   module: router,
-  isLogin: (req, res) => {
-    if (req.AppUser && req.AppUser.userId) {
-      return true;
+  checkLogin: function(req, res, next){
+
+    // 데이터 파싱
+    let ver = req.header("Ver");
+    let os = req.header("Os");
+    let token = req.header("Token");
+    let user = parseToken(token, req.app.get("jwt-secret"));
+
+    if (!ver || !os || !token || !user){
+      req.Error.wrongParameter(res)
+      return
     }
-    else {
-      req.Error.noAuthorization(res)
-      return false;
+
+    req.AppUser = {
+      ver: ver,
+      userId: user,
+      os: os
     }
+    next();
   }
 };
