@@ -85,12 +85,14 @@ exports.add = (req, res) => {
   rawFriends.push(userId)
   console.log(rawFriends);
 
+  let playlist = {}
   models.Playlist.create({
     title: title,
     place: place,
     startedAt: time
   })
   .then(result => {
+    playlist = result
     models.PlaylistShare
       .bulkCreate(rawFriends.map(name => {
         return {
@@ -100,7 +102,7 @@ exports.add = (req, res) => {
       }))
   })
   .then(result => {
-    res.json(result)
+    res.json(playlist)
   })
 }
 
@@ -127,7 +129,7 @@ exports.listMember = (req, res) => {
 
   let playlistId = req.params.playlistId;
   let userId = req.AppUser.userId
-  
+
   models.PlaylistShare
     .findAll({
       where: { playlistId: playlistId },
