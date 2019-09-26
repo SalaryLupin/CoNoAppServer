@@ -4,8 +4,7 @@ module.exports =(sequelize, DataTypes) => {
   var songTag = sequelize.define('SongTag', {
     userId: {
       type: DataTypes.STRING,
-      primaryKey: true,
-      references: { model: models.User, key: 'userId' }
+      primaryKey: true
     },
     songId: {
       type: DataTypes.STRING,

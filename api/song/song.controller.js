@@ -14,6 +14,47 @@ const typeStr = [
 function replaceAll(str, searchStr, replaceStr) {
   return str.split(searchStr).join(replaceStr);
 }
+
+exports.indexTag = (req, res) => {
+
+  let userId = req.AppUser.userId
+
+  models.SongTag
+    .findAll({
+      where: { userId: userId}
+    })
+    .then(result => res.json(result))
+
+}
+
+exports.showTag = (req, res) => {
+
+  let userId = req.AppUser.userId
+  let songId = req.params.songId
+
+  models.SongTag
+    .findOne({
+      where: { userId: userId, songId: songId }
+    })
+    .then(result => res.json(result))
+
+}
+
+exports.addTag = (req, res) => {
+
+  let userId = req.AppUser.userId
+  let songId = req.params.songId
+  let tags = req.body.tags
+
+  models.SongTag
+    .upsert(
+      { songId: songId, userId: userId, tags: tags },
+      { where: { userId: userId, songId: songId } })
+    //.then(models.SongTag.findOne({ where: { userId: userId, songId: songId }}))
+    .then(result => res.json(result))
+
+}
+
 /*
 https://www.tjmedia.co.kr/tjsong/song_search_list.asp
 form action : post
@@ -28,34 +69,6 @@ strType :
 strCond : "1" or "0". 단일 검색 여부
 strText : 검색어
 */
-
-exports.indexTag = (req, res) => {
-
-  let userId = req.AppUser.userId
-
-  models.SongTag
-    .findAll({
-      where: { userId: userId}
-    })
-    .then(result => res.json(result))
-
-}
-
-exports.addTag = (req, res) => {
-
-  let userId = req.AppUser.userId
-  let songId = req.params.songId
-  let tags = req.body.tags
-
-  models.SongTag
-    .upsert(tags, {
-      where: { userId: userId, songId: songId }
-    })
-    //.then(models.SongTag.findOne({ where: { userId: userId, songId: songId }}))
-    .then(result => res.json(result))
-
-}
-
 exports.search = (req, res) => {
 
   var strText = req.query.keyword
