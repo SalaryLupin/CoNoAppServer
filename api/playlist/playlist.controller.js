@@ -2,6 +2,43 @@ const models = require("../../models")
 const moment = require('moment');
 const appUser = require("../../middleware/appuser")
 
+exports.getPlaylist = (req, res, next) => {
+
+  if (!appUser.isLogin(req, res)){ return; }
+
+  let userId = req.AppUser.userId
+  let playlistId = req.params.playlistId
+
+  models.PlaylistShare
+    .findOne({
+      where: { userId: userId, playlistId: playlistId },
+      attributes: [],
+      include: {
+        model: models.Playlist,
+        where: { playlistId: playlistId },
+        attributes: [ "playlistId", "title", "place", "startedAt" ],
+        include: [
+            { model: models.SongList, attributes: ["songId"] },
+            { model: models.PlaylistShare, attributes: [ "userId" ] },
+        ]
+      }
+    })
+    .then(result => {
+      if (result) {
+        req.Playlist = result
+        next()
+      }
+      else {
+        req.Error.noAuthorization(res)
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
+
+}
+
 // show all playlists
 exports.index = (req, res) => {
 
@@ -31,35 +68,8 @@ exports.index = (req, res) => {
 
 exports.show = (req, res) => {
 
-  if (!appUser.isLogin(req, res)){ return; }
+  res.json(req.Playlist)
 
-  console.log("show approach")
-
-  let playlistId = req.params.playlistId
-  let userId = req.AppUser.userId
-
-  models.PlaylistShare
-    .findOne({
-      where: { userId: userId, playlistId: playlistId },
-      attributes: [],
-      include: {
-        model: models.Playlist,
-        where: { playlistId: playlistId },
-        attributes: [ "playlistId", "title", "place", "startedAt" ],
-        include: [
-            { model: models.SongList, attributes: ["songId"] },
-            { model: models.PlaylistShare, attributes: [ "userId" ] },
-        ]
-      }
-    })
-    .then(result => { return result.Playlist })
-    .then((result) => {
-      res.json(result);
-    })
-    .catch(err => {
-      console.log(err)
-      req.Error.internal(res)
-    })
 }
 
 exports.add = (req, res) => {
@@ -111,7 +121,8 @@ exports.leavePlaylist = (req, res) => {
       res.json(result)
     })
     .catch(err => {
-      res.status(400).json({err: "Internal Server Error"})
+      console.log(err)
+      req.Error.internal(res);
     })
 
 }
@@ -131,7 +142,8 @@ exports.listMember = (req, res) => {
       res.json(result)
     })
     .catch(err => {
-      res.status(400).json({err: "Internal Server Error"})
+      console.log(err)
+      req.Error.internal(res);
     })
 
 }
@@ -141,51 +153,22 @@ exports.inviteMember = (req, res) => {
 
   if (!appUser.isLogin(req, res)){ return; }
   let playlistId = req.params.playlistId;
-  let userId = req.AppUser ? req.AppUser.userId ? req.AppUser.userId : false : false;
+  let userId = req.AppUser.userId
   let friends = req.body.friends ? req.body.friends : []
-  console.log(req.body)
-  console.log(friends)
 
-  if (!playlistId) {
-    res.status(400).json({error: "Invalid Playlist"})
-    return;
-  }
-
-  if (!userId) {
-    res.status(400).json({error: "Invalid Account"})
-    return;
-  }
-
-  function addPlaylistSharer(playlist){
-    return new Promise(function(resolve, reject){
-      if (playlist) {
-        models.PlaylistShare
-          .bulkCreate(friends.map(name => {
-            return {
-              playlistId: playlist.playlistId,
-              userId: name
-            }
-          }))
-          .then(resolve)
+  models.PlaylistShare
+    .bulkCreate(friends.map(name => {
+      return {
+        playlistId: playlist.playlistId,
+        userId: name
       }
-      else {
-        reject("No Playlist")
-      }
-    });
-  }
-
-  models.Playlist
-    .findOne({
-      where: { playlistId: playlistId }
-    })
-    .then(result => {
-      addPlaylistSharer(result)
-    })
+    }))
     .then(result => {
       res.json(result)
     })
     .catch(err => {
-      res.status(400).json({err: "Invalid Playlist Id"})
+      console.log(err)
+      req.Error.internal(res);
     });
 
 }
