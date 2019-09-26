@@ -21,9 +21,8 @@ exports.index = (req, res) => {
         ]
       }
     })
-    .then((result) => {
-      res.json(result);
-    })
+    .then(playlists => playlists.map(playlist => playlist.Playlist))
+    .then(result => res.send(result))
     .catch((err) => {
       console.log(err)
       req.Error.internal(res);
@@ -35,21 +34,30 @@ exports.show = (req, res) => {
   if (!appUser.isLogin(req, res)){ return; }
 
   console.log("show approach")
+
   let playlistId = req.params.playlistId
-  models.Playlist
+  let userId = req.AppUser.userId
+
+  models.PlaylistShare
     .findOne({
-      where: { playlistId: playlistId },
-      attributes: [ "playlistId", "title", "place", "startedAt" ],
-      include: [
-          { model: models.SongList, attributes: ["songId"] },
-          { model: models.PlaylistShare, attributes: [ "userId" ] },
-      ]
+      where: { userId: userId, playlistId: playlistId },
+      attributes: [],
+      include: {
+        model: models.Playlist,
+        where: { playlistId: playlistId },
+        attributes: [ "playlistId", "title", "place", "startedAt" ],
+        include: [
+            { model: models.SongList, attributes: ["songId"] },
+            { model: models.PlaylistShare, attributes: [ "userId" ] },
+        ]
+      }
     })
+    .then(result => { return result.Playlist })
     .then((result) => {
       res.json(result);
     })
     .catch(err => {
-      console.log
+      console.log(err)
       req.Error.internal(res)
     })
 }
