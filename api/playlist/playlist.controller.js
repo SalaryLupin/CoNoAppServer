@@ -155,7 +155,7 @@ exports.inviteMember = (req, res) => {
   models.PlaylistShare
     .bulkCreate(friends.map(name => {
       return {
-        playlistId: playlist.playlistId,
+        playlistId: playlistId,
         userId: name
       }
     }))
