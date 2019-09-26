@@ -2,11 +2,17 @@ module.exports =(sequelize, DataTypes) => {
   var user = sequelize.define('User', {
     userId: {
       type: DataTypes.STRING,
-      primaryKey: true
+      primaryKey: true,
+      validate: {
+        is: /^[0-9]{11}$/
+      }
     },
     userPw: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        is: /^[a-zA-Z0-9!@]{8,20}$/
+      }
     }
   },
   {
