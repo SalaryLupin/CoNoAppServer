@@ -7,34 +7,41 @@ exports.list = (req, res) => {
   let playlistId = req.params.playlistId;
   let userId = req.AppUser.userId
 
-  models.SongList
-    .findAll({
-      where: { playlistId: playlistId },
-      attributes: [ "songId" ]
-    })
-    .then(result =>{
-      res.json(result)
-    })
-    .catch(err => {
-      res.status(400).json({err: "Internal Server Error"})
-    })
+  let sql =
+    "select sl.songId, ps.userId, st.tags "+
+    "from (playlistshares ps join songlists sl on ps.playlistId = sl.playlistId) join songtags as st on st.userId = ps.userId and st.songId = sl.songId " +
+    "where ps.playlistId = " + playlistId;
+
+  models.sequelize.query(sql, { type: models.sequelize.QueryTypes.SELECT})
+  .then(users => {
+    res.json(users)
+  })
+  .catch(err => {
+    req.Error.internal(res)
+  })
 }
 
 /**
   플레이리스트의 곡 정보를 보여주는 api
 */
 exports.show = (req, res) => {
-
   console.log("show approach")
   let playlistId = req.params.playlistId
   let songId = req.params.songId
-  models.SongList
-    .findOne({
-      where: { playlistId: playlistId, songId: songId },
-    })
-    .then((result) => {
-      res.json(result);
-    })
+
+  let sql =
+    "select ps.userId, st.tags "+
+    "from (playlistshares ps join songlists sl on ps.playlistId = sl.playlistId) join songtags as st on st.userId = ps.userId and st.songId = sl.songId " +
+    "where ps.playlistId = " + playlistId + " and sl.songId = \"" + songId + "\"";
+
+  models.sequelize.query(sql, { type: models.sequelize.QueryTypes.SELECT})
+  .then(users => {
+    res.json(users)
+  })
+  .catch(err => {
+    req.Error.internal(res)
+  })
+
 }
 
 /**
