@@ -1,5 +1,6 @@
 const models = require("../../models")
 const jwt = require('jsonwebtoken')
+const crypto = require("crypto")
 
 function validateUser(userId, userPw){
 
@@ -41,20 +42,30 @@ exports.login = (req, res) => {
             throw new Error('login failed')
         } else {
 
+          let salt = user.salt
+          let hashPw = crypto.createHash("sha512").update(userPw + salt).digest("hex");
+          let dbPw = user.userPw
+
           const p = new Promise((resolve, reject) => {
-              jwt.sign(
-                  {
-                      userId: user.userId
-                  },
-                  secret,
-                  {
-                      expiresIn: '7d',
-                      issuer: 'conoapp',
-                      subject: 'userInfo'
-                  }, (err, token) => {
-                      if (err) reject(err)
-                      resolve(token)
-                  })
+              if (hashPw == dbPw){
+                jwt.sign(
+                    {
+                        userId: user.userId
+                    },
+                    secret,
+                    {
+                        expiresIn: '7d',
+                        issuer: 'conoapp',
+                        subject: 'userInfo'
+                    }, (err, token) => {
+                        if (err) reject(err)
+                        resolve(token)
+                })
+              }
+              else {
+                reject(new Error('login failed'))
+              }
+
           })
           return p
 
@@ -72,7 +83,7 @@ exports.login = (req, res) => {
 
     models.User
       .findOne({
-        where: { userId: userId, userPw: userPw}
+        where: { userId: userId }
       })
       .then(check)
       .then(respond)
@@ -89,6 +100,9 @@ exports.register = (req, res) => {
   let userPw = req.body.userPw
   let songTags = req.body.songTags ? req.body.songTags : []
 
+  let salt = Math.round((new Date().valueOf() * Math.random())) + "";
+  let hashPassword = crypto.createHash("sha512").update(userPw + salt).digest("hex");
+
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
     return
@@ -97,7 +111,8 @@ exports.register = (req, res) => {
   models.User
     .create({
       userId: userId,
-      userPw: userPw
+      userPw: hashPassword,
+      salt: salt,
     })
     .then(result => {
       res.json(result)

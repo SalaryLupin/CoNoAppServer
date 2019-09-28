@@ -10,10 +10,11 @@ module.exports =(sequelize, DataTypes) => {
     userPw: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        is: /^[a-zA-Z0-9!@]{8,20}$/
-      }
+    },
+    salt: {
+      type: DataTypes.STRING
     }
+
   },
   {
     timestamps: true,
