@@ -13,6 +13,17 @@ function validateUser(userId, userPw){
 
 }
 
+function makeRandomString() {
+  var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+  var string_length = 20;
+  var randomstring = '';
+  for (var i=0; i<string_length; i++) {
+  var rnum = Math.floor(Math.random() * chars.length);
+    randomstring += chars.substring(rnum,rnum+1);
+  }
+  return randomstring;
+}
+
 exports.login = (req, res) => {
 
   let userId = req.body.userId
@@ -54,6 +65,7 @@ exports.login = (req, res) => {
     const respond = (token) => {
         res.json({
             message: 'logged in successfully',
+            dummy: makeRandomString(),
             token
         })
     }
