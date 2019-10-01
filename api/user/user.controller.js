@@ -1,6 +1,7 @@
 const models = require("../../models")
 const jwt = require('jsonwebtoken')
 const crypto = require("crypto")
+const key = require("../../config/key")
 
 function validateUser(userId, userPw){
 
@@ -30,6 +31,9 @@ exports.login = (req, res) => {
   let userId = req.body.userId
   let userPw = req.body.userPw
   let secret = req.app.get("jwt-secret")
+
+  let authToken = ""
+  let accessToken = ""
   console.log(secret)
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
@@ -46,38 +50,85 @@ exports.login = (req, res) => {
           let hashPw = crypto.createHash("sha512").update(userPw + salt).digest("hex");
           let dbPw = user.userPw
 
-          const p = new Promise((resolve, reject) => {
-              if (hashPw == dbPw){
-                jwt.sign(
-                    {
-                        userId: user.userId
-                    },
-                    secret,
-                    {
-                        expiresIn: '7d',
-                        issuer: 'conoapp',
-                        subject: 'userInfo'
-                    }, (err, token) => {
-                        if (err) reject(err)
-                        resolve(token)
-                })
-              }
-              else {
-                reject(new Error('login failed'))
-              }
-
-          })
-          return p
+          if (hashPw == dbPw){
+            return user
+          }
+          else {
+            throw new Error('login failed')
+          }
 
         }
     }
+    const issueAuthTokens = (user) => {
+      return new Promise((resolve, reject) => {
+          jwt.sign(
+            {
+                type: "auth",
+                userId: user.userId,
+            },
+            secret,
+            {
+                expiresIn: '30d',
+                issuer: 'conoapp',
+                subject: 'userInfo'
+            }, (err, token) => {
+              if (err) { reject(err); }
+              authToken = token
+              resolve(user)
+            });
+      });
+    }
+
+    const issueAccessTokens = (user) => {
+      return new Promise((resolve, reject) => {
+          jwt.sign(
+            {
+                userId: user.userId,
+                type: "access"
+            },
+            secret,
+            {
+                expiresIn: '1d',
+                issuer: 'conoapp',
+                subject: 'userInfo'
+            }, (err, token) => {
+              if (err) { reject(err); }
+              accessToken = token
+              resolve(user)
+            });
+      });
+    }
+
+    const saveToken = (user) => {
+      return new Promise((resolve, reject) => {
+        console.log("auth:" + authToken)
+        console.log("access:" + accessToken)
+        models.User
+          .update(
+            { authToken: authToken },
+            { where: { userId: user.userId }}
+          )
+          .then(resolve(user))
+          .catch(err => reject(err))
+      });
+    }
 
     // respond the token
-    const respond = (token) => {
+    const respond = (user) => {
+      var data = {
+        dummy: makeRandomString(),
+        access: accessToken,
+        auth: authToken
+      }
+      data = JSON.stringify(data)
+      console.log(data)
+      const cipher = crypto.createCipher('aes-256-cbc', key.key);
+      data = cipher.update(data, 'utf8', 'base64');
+      data += cipher.final('base64');
+
         res.json({
             message: 'logged in successfully',
-            dummy: makeRandomString(),
-            token
+            data: data
         })
     }
 
@@ -86,6 +137,9 @@ exports.login = (req, res) => {
         where: { userId: userId }
       })
       .then(check)
+      .then(issueAuthTokens)
+      .then(issueAccessTokens)
+      .then(saveToken)
       .then(respond)
       .catch(err =>{
         req.Error.internal(res)
