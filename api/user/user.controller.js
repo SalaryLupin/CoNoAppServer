@@ -2,6 +2,7 @@ const models = require("../../models")
 const jwt = require('jsonwebtoken')
 const crypto = require("crypto")
 const coder = require("../../util/coder")
+const snsSender = require("../../util/sns-sender")
 
 function validateUser(userId, userPw){
 
@@ -101,8 +102,6 @@ exports.login = (req, res) => {
 
     const saveToken = (user) => {
       return new Promise((resolve, reject) => {
-        console.log("auth:" + authToken)
-        console.log("access:" + accessToken)
         models.User
           .update(
             { authToken: authToken },
@@ -173,5 +172,33 @@ exports.register = (req, res) => {
       console.log(err)
       req.Error.wrongParameter(res, "userId or userPw")
     })
+
+}
+
+exports.getAuthMsg = (req, res) => {
+
+  let userId = req.body.userId
+
+  const checkUser = (user) => {}
+
+  const makeRandomNumber = (user) => {}
+
+  const sendSNS  = ""
+
+  const makeToken = ""
+
+  const respond = ""
+
+
+  models.User
+    .findOne({
+      where: { userId: userId}
+    })
+
+    snsSender.sendSNS(["01066345214"], "방송켜라 술쟁이")
+
+}
+
+exports.postAuthMsg = (req, res) => {
 
 }

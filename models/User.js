@@ -16,7 +16,11 @@ module.exports =(sequelize, DataTypes) => {
     },
     authToken: {
       type: DataTypes.STRING
-    }
+    },
+    isAuthorized: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
 
   },
   {

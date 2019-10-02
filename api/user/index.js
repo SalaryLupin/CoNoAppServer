@@ -7,4 +7,7 @@ router.get("/logout")
 router.post("/register", uc.register)
 router.post("/refresh")
 
+router.get("/auth_msg", uc.getAuthMsg)
+router.post("/auth_msg")
+
 module.exports = router
