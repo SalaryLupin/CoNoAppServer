@@ -52,7 +52,12 @@ exports.login = (req, res) => {
           let dbPw = user.userPw
 
           if (hashPw == dbPw){
-            return user
+            if (user.isAuthorized){
+              return user
+            }
+            else {
+              throw new Error("need authorization")
+            }
           }
           else {
             throw new Error('login failed')
