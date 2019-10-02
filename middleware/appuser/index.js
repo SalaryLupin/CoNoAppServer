@@ -9,12 +9,15 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const coder = require("../../util/coder")
 
 function parseToken(token, secret){
 
   if (!token) return null;
+  token = coder.decrypt(token)
   let decoded = jwt.verify(token, secret)
   if (decoded) {
+    console.log(decoded.userId)
     return decoded.userId
   }
 

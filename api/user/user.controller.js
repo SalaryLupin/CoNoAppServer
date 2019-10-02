@@ -1,7 +1,7 @@
 const models = require("../../models")
 const jwt = require('jsonwebtoken')
 const crypto = require("crypto")
-const key = require("../../config/key")
+const coder = require("../../util/coder")
 
 function validateUser(userId, userPw){
 
@@ -117,14 +117,12 @@ exports.login = (req, res) => {
     const respond = (user) => {
       var data = {
         dummy: makeRandomString(),
-        access: accessToken,
-        auth: authToken
+        auth: coder.encrypt(authToken),
+        access: coder.encrypt(accessToken),
       }
       data = JSON.stringify(data)
       console.log(data)
-      const cipher = crypto.createCipher('aes-256-cbc', key.key);
-      data = cipher.update(data, 'utf8', 'base64');
-      data += cipher.final('base64');
+      data = coder.encrypt(data)
 
         res.json({
             message: 'logged in successfully',
