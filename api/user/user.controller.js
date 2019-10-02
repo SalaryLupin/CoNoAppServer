@@ -291,7 +291,6 @@ exports.postAuthMsg = (req, res) => {
   else {
     req.Error.tokenExpired(res)
   }
-
 }
 
 exports.refreshToken =  (req, res) => {
@@ -313,7 +312,7 @@ exports.refreshToken =  (req, res) => {
     .findOne(
       { where: { userId: userId, authToken: auth }}
     ).then(user => {
-      if (user) => {
+      if (user) {
         var access = tokener.signAccessToken(auth.userId)
         access = coder.encrypt(access)
         res.json({ access: access })
