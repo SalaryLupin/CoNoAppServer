@@ -227,6 +227,7 @@ exports.getAuthMsg = (req, res) => {
           {
               type: "req",
               req: data.randomNumber,
+              userId: data.userId
           },
           secret,
           {
@@ -268,16 +269,17 @@ exports.postAuthMsg = (req, res) => {
 
   var token = coder.decrypt(req.body.token)
   let number = req.body.number + ""
+  let userId = req.body.name
   let secret = req.app.get("jwt-secret")
 
-  if (!token || !number){
+  if (!token || !number || !userId){
     req.Error.wrongParameter(res)
     return
   }
 
   try {
     let decoded = jwt.verify(token, secret)
-    if (decoded.req == number){
+    if (decoded.req == number && decoded.userId == userId){
       res.json({msg: "success"})
     }
     else { req.Error.wrongParameter(res) }
@@ -285,8 +287,35 @@ exports.postAuthMsg = (req, res) => {
   catch (e){
     req.Error.tokenExpired(res)
   }
+}
 
+exports.refreshToken =  (req, res) => {
 
+  let auth = coder.decrypt(req.body.auth)
+  let secret = req.app.get("jwt-secret")
 
+  if (!auth) {
+    req.Error.wrongParameter(res)
+    return
+  }
 
+  try {
+    auth = jwt.verify(auth, secret)
+    var access = jwt.sign(
+      {
+          userId: auth.userId,
+          type: "access"
+      },
+      secret,
+      {
+          expiresIn: '1h',
+          issuer: 'conoapp',
+          subject: 'userInfo'
+    });
+    access = coder.encrypt(access)
+  }
+  catch(e){
+    console.log(e)
+    req.Error.tokenExpired(res)
+  }
 }
