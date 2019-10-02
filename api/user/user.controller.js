@@ -34,7 +34,6 @@ exports.login = (req, res) => {
 
   let authToken = ""
   let accessToken = ""
-  console.log(secret)
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
     return
@@ -180,7 +179,6 @@ exports.getAuthMsg = (req, res) => {
 
   const makeRandomNumber = (user) => {
     let randomNumber = makeRandomString("0123456789", 6)
-    console.log("random number is " + randomNumber)
     return { user: user, randomNumber: randomNumber }
   }
 
@@ -188,7 +186,6 @@ exports.getAuthMsg = (req, res) => {
     return new Promise((resolve, reject) =>{
       let targets = [data.user.userId]
       let body = "인증번호는 [" + data.randomNumber + "] 입니다."
-      console.log(targets + ", " + body)
       snsSender.sendSNS(targets, body, (err, result) => {
         if (err) {
           console.log("err")
@@ -202,7 +199,7 @@ exports.getAuthMsg = (req, res) => {
   }
 
   const makeToken = (data) => {
-    let token = tokener.signReqToken(user.userId, data.randomNumber)
+    let token = tokener.signReqToken(data.user.userId, data.randomNumber)
     if (token) {
       return token
     }
@@ -212,7 +209,6 @@ exports.getAuthMsg = (req, res) => {
   }
 
   const respond = (token) => {
-    console.log("final data " + token)
     res.json({
       token: coder.encrypt(token)
     })
@@ -239,7 +235,7 @@ exports.postAuthMsg = (req, res) => {
 
   var token = coder.decrypt(req.body.token)
   let number = req.body.number + ""
-  let userId = req.body.name
+  let userId = req.body.userId
 
   if (!token || !number || !userId){
     req.Error.wrongParameter(res)
