@@ -1,5 +1,4 @@
 const models = require("../../models")
-const jwt = require('jsonwebtoken')
 const crypto = require("crypto")
 const coder = require("../../util/coder")
 const snsSender = require("../../util/sns-sender")
@@ -32,7 +31,6 @@ exports.login = (req, res) => {
 
   let userId = req.body.userId
   let userPw = req.body.userPw
-  let secret = req.app.get("jwt-secret")
 
   let authToken = ""
   let accessToken = ""
@@ -166,7 +164,6 @@ exports.register = (req, res) => {
 exports.getAuthMsg = (req, res) => {
 
   let userId = req.body.userId
-  let secret = req.app.get("jwt-secret")
 
   if (!userId){
     req.Error.wrongParameter(res)
@@ -243,7 +240,6 @@ exports.postAuthMsg = (req, res) => {
   var token = coder.decrypt(req.body.token)
   let number = req.body.number + ""
   let userId = req.body.name
-  let secret = req.app.get("jwt-secret")
 
   if (!token || !number || !userId){
     req.Error.wrongParameter(res)
@@ -283,7 +279,6 @@ exports.postAuthMsg = (req, res) => {
 exports.refreshToken =  (req, res) => {
 
   let auth = coder.decrypt(req.body.auth)
-  let secret = req.app.get("jwt-secret")
 
   if (!auth) {
     req.Error.wrongParameter(res)

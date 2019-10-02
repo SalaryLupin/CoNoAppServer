@@ -8,7 +8,6 @@
 
 const express = require("express");
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const coder = require("../../util/coder")
 const tokener = require("../../util/tokener")
 
@@ -35,7 +34,6 @@ module.exports = {
     let ver = req.header("Ver");
     let os = req.header("Os");
     let token = req.header("Token");
-    var user = parseToken(token, req.app.get("jwt-secret"));
 
     if (!user){
       req.Error.tokenExpired(res)
