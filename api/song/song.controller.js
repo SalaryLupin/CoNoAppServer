@@ -24,6 +24,10 @@ exports.indexTag = (req, res) => {
       where: { userId: userId}
     })
     .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
 
 }
 
@@ -37,6 +41,10 @@ exports.showTag = (req, res) => {
       where: { userId: userId, songId: songId }
     })
     .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
 
 }
 
@@ -52,6 +60,10 @@ exports.addTag = (req, res) => {
       { where: { userId: userId, songId: songId } })
     //.then(models.SongTag.findOne({ where: { userId: userId, songId: songId }}))
     .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
 
 }
 

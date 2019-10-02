@@ -84,6 +84,7 @@ exports.add = (req, res) => {
   let userId = req.AppUser.userId;
   rawFriends.push(userId)
   console.log(rawFriends);
+  // TODO: 친구 아이디 유효성 검사
 
   let playlist = {}
   models.Playlist.create({
@@ -103,6 +104,9 @@ exports.add = (req, res) => {
   })
   .then(result => {
     res.json(playlist)
+  })
+  .catch(err => {
+    req.Error.internal(res)
   })
 }
 

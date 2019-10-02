@@ -25,19 +25,15 @@ module.exports = {
     }
 
     request.post(options, function(err, response, body){
-      console.log("hello?")
       if (err) {
-        console.log("hello? 1")
         callback(err, null)
         return;
       }
 
       if (body.status == 200) {
-        console.log("hello? 2")
         callback(null, body)
       }
       else {
-        console.log("hello? 3")
         callback("error", body)
       }
     });

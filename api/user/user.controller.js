@@ -3,17 +3,22 @@ const crypto = require("crypto")
 const coder = require("../../util/coder")
 const snsSender = require("../../util/sns-sender")
 const tokener = require("../../util/tokener")
+const newErr = require("../../middleware/error")
+
+function validateUserId(userId){
+  if (!userId) return false;
+  const idRegExp = /^[0-9]{11}$/;
+  return idRegExp.test(userId)
+}
+
+function validateUserPw(userPw){
+  if (!userPw) return false;
+  const pwRegExp = /^[a-zA-Z0-9!@]{8,20}$/;
+  return pwRegExp.test(userPw)
+}
 
 function validateUser(userId, userPw){
-
-  if (!userId || !userPw) return false;
-
-  // id 는 핸드폰 번호만 가능
-  const idRegExp = /^[0-9]{11}$/;
-  // pw는 특수문자 포함 8글자 이상 20글자 이하
-  const pwRegExp = /^[a-zA-Z0-9!@]{8,20}$/;
-  return idRegExp.test(userId) && pwRegExp.test(userPw)
-
+  return validateUserId(userId) && validateUserPw(userPw)
 }
 
 function makeRandomString(from, length) {
@@ -42,7 +47,7 @@ exports.login = (req, res) => {
   const check = (user) => {
         if(!user) {
             // user does not exist
-            throw new Error('login failed')
+            throw new newErr.UserNotExistError(userId)
         } else {
 
           let salt = user.salt
@@ -54,13 +59,12 @@ exports.login = (req, res) => {
               return user
             }
             else {
-              throw new Error("need authorization")
+              throw new newErr.SNSAuthorizeError("need authorization")
             }
           }
           else {
-            throw new Error('login failed')
+            throw new newErr.UserNotExistError(userId)
           }
-
         }
     }
     const issueAuthTokens = (user) => {
@@ -70,7 +74,7 @@ exports.login = (req, res) => {
         return user
       }
       else {
-        throw new Error("Can't Make Token")
+        throw new newErr.TokenCreationError("Can't Make Token")
       }
     }
 
@@ -81,7 +85,7 @@ exports.login = (req, res) => {
         return user
       }
       else {
-        throw new Error("Can't Make Token")
+        throw new newErr.TokenCreationError("Can't Make Token")
       }
     }
 
@@ -124,8 +128,17 @@ exports.login = (req, res) => {
       .then(saveToken)
       .then(respond)
       .catch(err =>{
-        req.Error.internal(res)
         console.log(err)
+        let name = err.name
+        if (name == "UserNotExistError") {
+          req.Error.wrongParameter(res)
+        }
+        else if (name == "SNSAuthorizeError"){
+          req.Error.noAuthorization(res)
+        }
+        else {
+          req.Error.internal(res)
+        }
       })
 
 }
@@ -155,7 +168,7 @@ exports.register = (req, res) => {
     })
     .catch(err => {
       console.log(err)
-      req.Error.wrongParameter(res, "userId or userPw")
+      req.Error.internal(res)
     })
 
 }
@@ -164,7 +177,7 @@ exports.getAuthMsg = (req, res) => {
 
   let userId = req.body.userId
 
-  if (!userId){
+  if (!userId || !validateUserId(userId)){
     req.Error.wrongParameter(res)
     return
   }
@@ -172,9 +185,9 @@ exports.getAuthMsg = (req, res) => {
   const checkUser = (user) => {
     if (user){
       if (!user.isAuthorized){ return user }
-      else { throw "Already Authorized" }
+      else { throw new newErr.AlreadySNSAuthorizeError("Already Authrized") }
     }
-    else { throw "No User" }
+    else { throw new newErr.UserNotExistError(userId) }
   }
 
   const makeRandomNumber = (user) => {
@@ -188,7 +201,7 @@ exports.getAuthMsg = (req, res) => {
       let body = "인증번호는 [" + data.randomNumber + "] 입니다."
       snsSender.sendSNS(targets, body, (err, result) => {
         if (err) {
-          console.log("err")
+          console.log(err)
           reject(err)
         }
         else {
@@ -204,7 +217,7 @@ exports.getAuthMsg = (req, res) => {
       return token
     }
     else {
-      throw new Error("Can't Make Token")
+      throw new newErr.TokenCreationError("Can't Make Token")
     }
   }
 
@@ -226,7 +239,16 @@ exports.getAuthMsg = (req, res) => {
     .then(respond)
     .catch((err) => {
       console.log(err)
-      req.Error.internal(res)
+      let name = err.name
+      if (name == "UserNotExistError") {
+        req.Error.wrongParameter(res)
+      }
+      else if (name == "AlreadySNSAuthorizeError"){
+        req.Error.noAuthorization(res)
+      }
+      else {
+        req.Error.internal(res)
+      }
     })
 
 }
@@ -237,7 +259,7 @@ exports.postAuthMsg = (req, res) => {
   let number = req.body.number + ""
   let userId = req.body.userId
 
-  if (!token || !number || !userId){
+  if (!token || !number || !userId || !validateUserId(userId)){
     req.Error.wrongParameter(res)
     return
   }

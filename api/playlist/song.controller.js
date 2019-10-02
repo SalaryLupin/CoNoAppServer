@@ -65,6 +65,9 @@ exports.add = (req, res) => {
   .then(result => {
     res.json(result)
   })
+  .catch(err => {
+    req.Error.internal(res)
+  })
 }
 
 /**
@@ -83,5 +86,8 @@ exports.delete = (req, res) => {
     })
   .then(result => {
     res.json(result)
+  })
+  .catch(err => {
+    req.Error.internal(res)
   })
 }
