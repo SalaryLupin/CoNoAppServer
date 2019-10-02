@@ -10,20 +10,20 @@ const express = require("express");
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const coder = require("../../util/coder")
+const tokener = require("../../util/tokener")
 
 function parseToken(token, secret){
 
   if (!token) return null;
   token = coder.decrypt(token)
-  try {
-    let decoded = jwt.verify(token, secret)
-    if (decoded) {
-      console.log(decoded.userId + ", " + decoded.exp)
-      return decoded.userId
-    }
+
+  let decoded = tokener.verifyToken(token)
+  if (decoded) {
+    console.log(decoded.userId + ", " + decoded.exp)
+    return decoded.userId
   }
-  catch (e){
-    throw e;
+  else {
+    return null
   }
 }
 
@@ -35,15 +35,12 @@ module.exports = {
     let ver = req.header("Ver");
     let os = req.header("Os");
     let token = req.header("Token");
-    var user = ""
-    try {
-      user = parseToken(token, req.app.get("jwt-secret"));
-    }
-    catch(e){
+    var user = parseToken(token, req.app.get("jwt-secret"));
+
+    if (!user){
       req.Error.tokenExpired(res)
       return;
     }
-
 
     if (!ver || !os || !token || !user){
       req.Error.wrongParameter(res)

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const crypto = require("crypto")
 const coder = require("../../util/coder")
 const snsSender = require("../../util/sns-sender")
+const tokener = require("../../util/tokener")
 
 function validateUser(userId, userPw){
 
@@ -66,43 +67,25 @@ exports.login = (req, res) => {
         }
     }
     const issueAuthTokens = (user) => {
-      return new Promise((resolve, reject) => {
-          jwt.sign(
-            {
-                type: "auth",
-                userId: user.userId,
-            },
-            secret,
-            {
-                expiresIn: '30d',
-                issuer: 'conoapp',
-                subject: 'userInfo'
-            }, (err, token) => {
-              if (err) { reject(err); }
-              authToken = token
-              resolve(user)
-            });
-      });
+      let token = tokener.signAuthToken(user.userId)
+      if (token) {
+        authToken = token
+        return user
+      }
+      else {
+        throw new Error("Can't Make Token")
+      }
     }
 
     const issueAccessTokens = (user) => {
-      return new Promise((resolve, reject) => {
-          jwt.sign(
-            {
-                userId: user.userId,
-                type: "access"
-            },
-            secret,
-            {
-                expiresIn: '1h',
-                issuer: 'conoapp',
-                subject: 'userInfo'
-            }, (err, token) => {
-              if (err) { reject(err); }
-              accessToken = token
-              resolve(user)
-            });
-      });
+      let token = tokener.signAccessToken(user.userId)
+      if (token) {
+        accessToken = token
+        return user
+      }
+      else {
+        throw new Error("Can't Make Token")
+      }
     }
 
     const saveToken = (user) => {
@@ -222,23 +205,13 @@ exports.getAuthMsg = (req, res) => {
   }
 
   const makeToken = (data) => {
-    return new Promise((resolve, reject) => {
-        jwt.sign(
-          {
-              type: "req",
-              req: data.randomNumber,
-              userId: data.userId
-          },
-          secret,
-          {
-              expiresIn: '3m',
-              issuer: 'conoapp',
-              subject: 'userInfo'
-          }, (err, token) => {
-            if (err) { reject(err); }
-            resolve(token)
-          });
-    });
+    let token = tokener.signReqToken(user.userId, data.randomNumber)
+    if (token) {
+      return token
+    }
+    else {
+      throw new Error("Can't Make Token")
+    }
   }
 
   const respond = (token) => {
@@ -277,16 +250,34 @@ exports.postAuthMsg = (req, res) => {
     return
   }
 
-  try {
-    let decoded = jwt.verify(token, secret)
+  let decoded = tokener.verifyToken(token)
+  if (decoded) {
     if (decoded.req == number && decoded.userId == userId){
-      res.json({msg: "success"})
+      models.User
+        .update(
+          { isAuthorized: true },
+          { where: { userId: userId } }
+        )
+        .then((result) =>{
+          if (result[0] > 0){
+            res.json({msg: "success"})
+          }
+          else {
+            req.Error.wrongParameter(res)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+          req.Error.internal(res)
+        })
+
     }
     else { req.Error.wrongParameter(res) }
   }
-  catch (e){
+  else {
     req.Error.tokenExpired(res)
   }
+
 }
 
 exports.refreshToken =  (req, res) => {
@@ -299,23 +290,13 @@ exports.refreshToken =  (req, res) => {
     return
   }
 
-  try {
-    auth = jwt.verify(auth, secret)
-    var access = jwt.sign(
-      {
-          userId: auth.userId,
-          type: "access"
-      },
-      secret,
-      {
-          expiresIn: '1h',
-          issuer: 'conoapp',
-          subject: 'userInfo'
-    });
+  auth = tokener.verify(auth)
+  if (auth) {
+    var access = tokener.signAccessToken(auth.userId)
     access = coder.encrypt(access)
+    res.json({ access: access })
   }
-  catch(e){
-    console.log(e)
+  else {
     req.Error.tokenExpired(res)
   }
 }
