@@ -10,6 +10,10 @@ ResponseCode
         err: "Wrong Parameter",
         data: "Parameter Name" // 디버그 시에만 전달
       }
+    - 401 : 토큰이 만료됨
+      {
+        err:"Token is invalid"
+      }
     - 403 : 인증이 안되어있음
       {
         err: "No Authorization"
@@ -30,6 +34,7 @@ initRouter.use((req, res, next) => {
   req.Error = {
     wrongParameter: (res, data) => res.status(400).json({ err: "Wrong Parameter", data: data }),
     noAuthorization: (res) => res.status(403).json({ err: "No Authorization" }),
+    tokenExpired: (res) => res.status(401).json({err:"Token is invalid"}),
     internal: (res) => res.status(500).json({ err: "Internal Server Error" })
   }
   next()

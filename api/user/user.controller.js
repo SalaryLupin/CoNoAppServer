@@ -88,7 +88,7 @@ exports.login = (req, res) => {
             },
             secret,
             {
-                expiresIn: '1d',
+                expiresIn: '1h',
                 issuer: 'conoapp',
                 subject: 'userInfo'
             }, (err, token) => {

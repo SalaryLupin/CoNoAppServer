@@ -15,12 +15,16 @@ function parseToken(token, secret){
 
   if (!token) return null;
   token = coder.decrypt(token)
-  let decoded = jwt.verify(token, secret)
-  if (decoded) {
-    console.log(decoded.userId)
-    return decoded.userId
+  try {
+    let decoded = jwt.verify(token, secret)
+    if (decoded) {
+      console.log(decoded.userId + ", " + decoded.exp)
+      return decoded.userId
+    }
   }
-
+  catch (e){
+    throw e;
+  }
 }
 
 module.exports = {
@@ -31,7 +35,15 @@ module.exports = {
     let ver = req.header("Ver");
     let os = req.header("Os");
     let token = req.header("Token");
-    let user = parseToken(token, req.app.get("jwt-secret"));
+    var user = ""
+    try {
+      user = parseToken(token, req.app.get("jwt-secret"));
+    }
+    catch(e){
+      req.Error.tokenExpired(res)
+      return;
+    }
+
 
     if (!ver || !os || !token || !user){
       req.Error.wrongParameter(res)
