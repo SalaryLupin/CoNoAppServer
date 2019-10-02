@@ -16,9 +16,9 @@ function validateUser(userId, userPw){
 
 }
 
-function makeRandomString() {
-  var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-  var string_length = 20;
+function makeRandomString(from, length) {
+  var chars = from ? from : "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+  var string_length = length ? length : 20;
   var randomstring = '';
   for (var i=0; i<string_length; i++) {
   var rnum = Math.floor(Math.random() * chars.length);
@@ -178,27 +178,110 @@ exports.register = (req, res) => {
 exports.getAuthMsg = (req, res) => {
 
   let userId = req.body.userId
+  let secret = req.app.get("jwt-secret")
 
-  const checkUser = (user) => {}
+  if (!userId){
+    req.Error.wrongParameter(res)
+    return
+  }
 
-  const makeRandomNumber = (user) => {}
+  const checkUser = (user) => {
+    if (user){
+      if (!user.isAuthorized){ return user }
+      else { throw "Already Authorized" }
+    }
+    else { throw "No User" }
+  }
 
-  const sendSNS  = ""
+  const makeRandomNumber = (user) => {
+    let randomNumber = makeRandomString("0123456789", 6)
+    console.log("random number is " + randomNumber)
+    return { user: user, randomNumber: randomNumber }
+  }
 
-  const makeToken = ""
+  const sendSNS  = (data) => {
+    return new Promise((resolve, reject) =>{
+      let targets = [data.user.userId]
+      let body = "인증번호는 [" + data.randomNumber + "] 입니다."
+      console.log(targets + ", " + body)
+      snsSender.sendSNS(targets, body, (err, result) => {
+        if (err) {
+          console.log("err")
+          reject(err)
+        }
+        else {
+          resolve(data)
+        }
+      })
+    });
+  }
 
-  const respond = ""
+  const makeToken = (data) => {
+    return new Promise((resolve, reject) => {
+        jwt.sign(
+          {
+              type: "req",
+              req: data.randomNumber,
+          },
+          secret,
+          {
+              expiresIn: '3m',
+              issuer: 'conoapp',
+              subject: 'userInfo'
+          }, (err, token) => {
+            if (err) { reject(err); }
+            resolve(token)
+          });
+    });
+  }
+
+  const respond = (token) => {
+    console.log("final data " + token)
+    res.json({
+      token: coder.encrypt(token)
+    })
+  }
 
 
   models.User
     .findOne({
-      where: { userId: userId}
+      where: { userId: userId }
     })
-
-    snsSender.sendSNS(["01066345214"], "방송켜라 술쟁이")
+    .then(checkUser)
+    .then(makeRandomNumber)
+    .then(sendSNS)
+    .then(makeToken)
+    .then(respond)
+    .catch((err) => {
+      console.log(err)
+      req.Error.internal(res)
+    })
 
 }
 
 exports.postAuthMsg = (req, res) => {
+
+  var token = coder.decrypt(req.body.token)
+  let number = req.body.number + ""
+  let secret = req.app.get("jwt-secret")
+
+  if (!token || !number){
+    req.Error.wrongParameter(res)
+    return
+  }
+
+  try {
+    let decoded = jwt.verify(token, secret)
+    if (decoded.req == number){
+      res.json({msg: "success"})
+    }
+    else { req.Error.wrongParameter(res) }
+  }
+  catch (e){
+    req.Error.tokenExpired(res)
+  }
+
+
+
 
 }
