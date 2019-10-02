@@ -1,9 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const uc = require("./user.controller")
+const appUser = require("../../middleware/appuser");
 
 router.post("/login", uc.login)
-router.get("/logout")
+router.get("/logout", [appUser.checkLogin, uc.logout])
 router.post("/register", uc.register)
 router.post("/refresh", uc.refreshToken)
 

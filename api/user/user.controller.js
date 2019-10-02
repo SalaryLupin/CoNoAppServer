@@ -143,6 +143,25 @@ exports.login = (req, res) => {
 
 }
 
+exports.logout = (req, res) => {
+
+  let userId = req.AppUser.userId
+
+  models.User
+    .update(
+      { authToken: null },
+      { where: { userId: userId }}
+    )
+    .then(result => {
+      res.json(result)
+    })
+    .catch(err=>{
+      console.log(err)
+      req.Error.internal(res)
+    })
+
+}
+
 exports.register = (req, res) => {
 
   let userId = req.body.userId
