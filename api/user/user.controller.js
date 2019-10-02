@@ -297,19 +297,33 @@ exports.postAuthMsg = (req, res) => {
 exports.refreshToken =  (req, res) => {
 
   let auth = coder.decrypt(req.body.auth)
+  let userId = req.body.userId
 
-  if (!auth) {
+  if (!auth || !userId) {
     req.Error.wrongParameter(res)
     return
   }
 
   auth = tokener.verify(auth)
-  if (auth) {
-    var access = tokener.signAccessToken(auth.userId)
-    access = coder.encrypt(access)
-    res.json({ access: access })
-  }
-  else {
+  if (!auth) {
     req.Error.tokenExpired(res)
+    return
   }
+  models.User
+    .findOne(
+      { where: { userId: userId, authToken: auth }}
+    ).then(user => {
+      if (user) => {
+        var access = tokener.signAccessToken(auth.userId)
+        access = coder.encrypt(access)
+        res.json({ access: access })
+      }
+      else {
+        res.Error.noAuthorization(res)
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
 }
