@@ -147,7 +147,7 @@ exports.logout = (req, res) => {
       { where: { userId: userId }}
     )
     .then(result => {
-      res.json(result)
+      res.json({ userId: result.userId })
     })
     .catch(err=>{
       console.log(err)
@@ -177,11 +177,13 @@ exports.register = (req, res) => {
       salt: salt,
     })
     .then(result => {
-      res.json(result)
+      res.json({ userId: result.userId })
     })
     .catch(err => {
-      console.log(err)
-      req.Error.internal(res)
+      let name = err.name
+
+      if (name == "SequelizeUniqueConstraintError"){ req.Error.duplicatedUser(res) }
+      else { console.log(err); req.Error.internal(res) }
     })
 
 }

@@ -35,7 +35,8 @@ initRouter.use((req, res, next) => {
     wrongParameter: (res, data) => res.status(400).json({ err: "Wrong Parameter", data: data }),
     noAuthorization: (res) => res.status(403).json({ err: "No Authorization" }),
     tokenExpired: (res) => res.status(401).json({err:"Token is invalid"}),
-    internal: (res) => res.status(500).json({ err: "Internal Server Error" })
+    internal: (res) => res.status(500).json({ err: "Internal Server Error" }),
+    duplicatedUser: (res) => res.status(400).json({ err: "Duplicated User" })
   }
   next()
 })
