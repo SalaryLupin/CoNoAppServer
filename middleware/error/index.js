@@ -58,13 +58,13 @@ class UserNotExistError extends CustomError {
   }
 }
 
-class SNSAuthorizeError extends CustomError {
+class SMSAuthorizeError extends CustomError {
   constructor(message){
     super(message)
   }
 }
 
-class AlreadySNSAuthorizeError extends CustomError {
+class AlreadySMSAuthorizeError extends CustomError {
   constructor(message){
     super(message)
   }
@@ -82,12 +82,21 @@ class TokenCreationError extends CustomError {
   }
 }
 
+class NoAuthorizationError extends CustomError {
+  constructor(message){
+    super(message)
+  }
+}
+
 module.exports = {
 
   initModule: initRouter,
 
   UserNotExistError,
   TokenExpiredError,
+  NoAuthorizationError,
+  SMSAuthorizeError,
+  AlreadySMSAuthorizeError
 
 
 }

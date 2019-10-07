@@ -1,11 +1,11 @@
 
 const request = require("request");
 const cheerio = require('cheerio');
-const config = require("../config/sns.js")
+const config = require("../config/sms.js")
 
 module.exports = {
 
-  sendSNS: (targets, body, callback) => {
+  sendSMS: (targets, body, callback) => {
     let url = "https://api-sens.ncloud.com/v1/sms/services/" + config.serviceId + "/messages"
     let options = {
       uri: url,

@@ -10,19 +10,20 @@ const express = require("express");
 const router = express.Router();
 const coder = require("../../util/coder")
 const tokener = require("../../util/tokener")
+const CustomError = require("../error")
 
 function parseToken(token){
 
-  if (!token) return null;
+  if (!token) return [ null, new CustomError.NoAuthorizationError("no-token")];
   token = coder.decrypt(token)
 
-  let decoded = tokener.verifyToken(token)
-  if (decoded) {
+  try {
+    let decoded = tokener.verifyToken(token)
     console.log(decoded.userId + ", " + decoded.exp)
-    return decoded.userId
+    return [ decoded.userId, null ]
   }
-  else {
-    return null
+  catch(err){
+    return [ null, err ]
   }
 }
 
@@ -34,14 +35,19 @@ module.exports = {
     let ver = req.header("Ver");
     let os = req.header("Os");
     let token = req.header("Token");
-    let user = parseToken(token)
+    let [ user, err ] = parseToken(token)
+    console.log(user + ", " + err)
 
-    if (!user){
-      req.Error.tokenExpired(res)
+    // 에러 처리
+    if (err){
+      if (err.name == "TokenExpiredError") { req.Error.tokenExpired(res) }
+      else if (err.name = "JsonWebTokenError") { req.Error.noAuthorization(res) }
+      else if (err.name = "NoAuthorizationError") { req.Error.noAuthorization(res) }
+      else { req.Error.internal(res) }
       return;
     }
 
-    if (!ver || !os || !token || !user){
+    if (!ver || !os || !user){
       req.Error.wrongParameter(res)
       return
     }

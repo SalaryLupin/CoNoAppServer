@@ -1,7 +1,7 @@
 const models = require("../../models")
 const crypto = require("crypto")
 const coder = require("../../util/coder")
-const snsSender = require("../../util/sns-sender")
+const smsSender = require("../../util/sms-sender")
 const tokener = require("../../util/tokener")
 const newErr = require("../../middleware/error")
 
@@ -46,7 +46,6 @@ exports.login = (req, res) => {
 
   const check = (user) => {
         if(!user) {
-            // user does not exist
             throw new newErr.UserNotExistError(userId)
         } else {
 
@@ -59,7 +58,7 @@ exports.login = (req, res) => {
               return user
             }
             else {
-              throw new newErr.SNSAuthorizeError("need authorization")
+              throw new newErr.SMSAuthorizeError("need authorization")
             }
           }
           else {
@@ -67,6 +66,7 @@ exports.login = (req, res) => {
           }
         }
     }
+
     const issueAuthTokens = (user) => {
       let token = tokener.signAuthToken(user.userId)
       if (token) {
@@ -130,15 +130,9 @@ exports.login = (req, res) => {
       .catch(err =>{
         console.log(err)
         let name = err.name
-        if (name == "UserNotExistError") {
-          req.Error.wrongParameter(res)
-        }
-        else if (name == "SNSAuthorizeError"){
-          req.Error.noAuthorization(res)
-        }
-        else {
-          req.Error.internal(res)
-        }
+        if (name == "UserNotExistError") { req.Error.wrongParameter(res) }
+        else if (name == "SMSAuthorizeError"){ req.Error.noAuthorization(res) }
+        else { req.Error.internal(res) }
       })
 
 }
@@ -204,7 +198,7 @@ exports.getAuthMsg = (req, res) => {
   const checkUser = (user) => {
     if (user){
       if (!user.isAuthorized){ return user }
-      else { throw new newErr.AlreadySNSAuthorizeError("Already Authrized") }
+      else { throw new newErr.AlreadySMSAuthorizeError("Already Authrized") }
     }
     else { throw new newErr.UserNotExistError(userId) }
   }
@@ -214,11 +208,11 @@ exports.getAuthMsg = (req, res) => {
     return { user: user, randomNumber: randomNumber }
   }
 
-  const sendSNS  = (data) => {
+  const sendSMS  = (data) => {
     return new Promise((resolve, reject) =>{
       let targets = [data.user.userId]
       let body = "인증번호는 [" + data.randomNumber + "] 입니다."
-      snsSender.sendSNS(targets, body, (err, result) => {
+      smsSender.sendSMS(targets, body, (err, result) => {
         if (err) {
           console.log(err)
           reject(err)
@@ -253,7 +247,7 @@ exports.getAuthMsg = (req, res) => {
     })
     .then(checkUser)
     .then(makeRandomNumber)
-    .then(sendSNS)
+    .then(sendSMS)
     .then(makeToken)
     .then(respond)
     .catch((err) => {
@@ -262,7 +256,7 @@ exports.getAuthMsg = (req, res) => {
       if (name == "UserNotExistError") {
         req.Error.wrongParameter(res)
       }
-      else if (name == "AlreadySNSAuthorizeError"){
+      else if (name == "AlreadySMSAuthorizeError"){
         req.Error.noAuthorization(res)
       }
       else {
