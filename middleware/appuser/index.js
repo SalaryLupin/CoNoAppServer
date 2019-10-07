@@ -11,7 +11,7 @@ const router = express.Router();
 const coder = require("../../util/coder")
 const tokener = require("../../util/tokener")
 
-function parseToken(token, secret){
+function parseToken(token){
 
   if (!token) return null;
   token = coder.decrypt(token)
@@ -34,6 +34,7 @@ module.exports = {
     let ver = req.header("Ver");
     let os = req.header("Os");
     let token = req.header("Token");
+    let user = parseToken(token)
 
     if (!user){
       req.Error.tokenExpired(res)
