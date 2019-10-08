@@ -1,6 +1,7 @@
 
 const request = require("request")
 const cheerio = require('cheerio');
+const models = require("../../models")
 
 const typeStr = [
   "title",
@@ -13,6 +14,59 @@ const typeStr = [
 function replaceAll(str, searchStr, replaceStr) {
   return str.split(searchStr).join(replaceStr);
 }
+
+exports.indexTag = (req, res) => {
+
+  const userId = req.AppUser.userId
+
+  models.SongTag
+    .findAll({
+      where: { userId: userId}
+    })
+    .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
+
+}
+
+exports.showTag = (req, res) => {
+
+  const userId = req.AppUser.userId
+  const songId = req.params.songId
+
+  models.SongTag
+    .findOne({
+      where: { userId: userId, songId: songId }
+    })
+    .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
+
+}
+
+exports.addTag = (req, res) => {
+
+  const userId = req.AppUser.userId
+  const songId = req.params.songId
+  const tags = req.body.tags
+
+  models.SongTag
+    .upsert(
+      { songId: songId, userId: userId, tags: tags },
+      { where: { userId: userId, songId: songId } })
+    //.then(models.SongTag.findOne({ where: { userId: userId, songId: songId }}))
+    .then(result => res.json(result))
+    .catch(err => {
+      console.log(err)
+      req.Error.internal(res)
+    })
+
+}
+
 /*
 https://www.tjmedia.co.kr/tjsong/song_search_list.asp
 form action : post
@@ -27,7 +81,6 @@ strType :
 strCond : "1" or "0". 단일 검색 여부
 strText : 검색어
 */
-
 exports.search = (req, res) => {
 
   var strText = req.query.keyword
@@ -37,7 +90,7 @@ exports.search = (req, res) => {
   var url = "https://www.tjmedia.co.kr/tjsong/song_search_list.asp"
   console.log(strText)
 
-  let options = {
+  const options = {
     uri: url,
     method: 'POST',
     form: {

@@ -1,12 +1,13 @@
 const express = require("express")
 const router = express.Router()
+const appUser = require("../../middleware/appuser")
 
-const songController = require("./song.controller.js");
-const tagController = require("./tag.controller.js");
+const sc = require("./song.controller.js");
 
-router.get("/search", songController.search)
+router.get("/search", sc.search)
 
-router.get("/tag", tagController.tags)
-router.get("/category", tagController.categories)
+router.post("/tag/:songId", [appUser.checkLogin, sc.addTag])
+router.get("/tag/:songId", [appUser.checkLogin, sc.showTag])
+router.get("/tag", [appUser.checkLogin, sc.indexTag])
 
 module.exports = router
