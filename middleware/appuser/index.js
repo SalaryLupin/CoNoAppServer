@@ -18,7 +18,7 @@ function parseToken(token){
   token = coder.decrypt(token)
 
   try {
-    let decoded = tokener.verifyToken(token)
+    const decoded = tokener.verifyToken(token)
     console.log(decoded.userId + ", " + decoded.exp)
     return [ decoded.userId, null ]
   }
@@ -32,10 +32,10 @@ module.exports = {
   checkLogin: function(req, res, next){
 
     // 데이터 파싱
-    let ver = req.header("Ver");
-    let os = req.header("Os");
-    let token = req.header("Token");
-    let [ user, err ] = parseToken(token)
+    const ver = req.header("Ver");
+    const os = req.header("Os");
+    const token = req.header("Token");
+    const [ user, err ] = parseToken(token)
     console.log(user + ", " + err)
 
     // 에러 처리

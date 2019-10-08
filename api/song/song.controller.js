@@ -17,7 +17,7 @@ function replaceAll(str, searchStr, replaceStr) {
 
 exports.indexTag = (req, res) => {
 
-  let userId = req.AppUser.userId
+  const userId = req.AppUser.userId
 
   models.SongTag
     .findAll({
@@ -33,8 +33,8 @@ exports.indexTag = (req, res) => {
 
 exports.showTag = (req, res) => {
 
-  let userId = req.AppUser.userId
-  let songId = req.params.songId
+  const userId = req.AppUser.userId
+  const songId = req.params.songId
 
   models.SongTag
     .findOne({
@@ -50,9 +50,9 @@ exports.showTag = (req, res) => {
 
 exports.addTag = (req, res) => {
 
-  let userId = req.AppUser.userId
-  let songId = req.params.songId
-  let tags = req.body.tags
+  const userId = req.AppUser.userId
+  const songId = req.params.songId
+  const tags = req.body.tags
 
   models.SongTag
     .upsert(
@@ -90,7 +90,7 @@ exports.search = (req, res) => {
   var url = "https://www.tjmedia.co.kr/tjsong/song_search_list.asp"
   console.log(strText)
 
-  let options = {
+  const options = {
     uri: url,
     method: 'POST',
     form: {

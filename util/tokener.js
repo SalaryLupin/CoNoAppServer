@@ -2,11 +2,11 @@
 const jwt = require('jsonwebtoken')
 const config = require("../config/token")
 
-let secret = config.jwtSecret
+const secret = config.jwtSecret
 
 function signToken(data, expiresIn){
   try {
-    let signedToken = jwt.sign(
+    const signedToken = jwt.sign(
       data,
     secret,
     {

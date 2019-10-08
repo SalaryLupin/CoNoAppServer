@@ -4,10 +4,10 @@ const moment = require('moment');
 // show all song
 exports.list = (req, res) => {
 
-  let playlistId = req.params.playlistId;
-  let userId = req.AppUser.userId
+  const playlistId = req.params.playlistId;
+  const userId = req.AppUser.userId
 
-  let sql =
+  const sql =
     "select sl.songId, ps.userId, st.tags "+
     "from (playlistshares ps join songlists sl on ps.playlistId = sl.playlistId) join songtags as st on st.userId = ps.userId and st.songId = sl.songId " +
     "where ps.playlistId = " + playlistId;
@@ -26,10 +26,10 @@ exports.list = (req, res) => {
 */
 exports.show = (req, res) => {
   console.log("show approach")
-  let playlistId = req.params.playlistId
-  let songId = req.params.songId
+  const playlistId = req.params.playlistId
+  const songId = req.params.songId
 
-  let sql =
+  const sql =
     "select ps.userId, st.tags "+
     "from (playlistshares ps join songlists sl on ps.playlistId = sl.playlistId) join songtags as st on st.userId = ps.userId and st.songId = sl.songId " +
     "where ps.playlistId = " + playlistId + " and sl.songId = \"" + songId + "\"";
@@ -51,9 +51,9 @@ exports.add = (req, res) => {
 
   console.log("add approach")
 
-  let playlistId = req.params.playlistId;
-  let songs = req.body.songs ? req.body.songs : []
-  let userId = req.AppUser.userId;
+  const playlistId = req.params.playlistId;
+  const songs = req.body.songs ? req.body.songs : []
+  const userId = req.AppUser.userId;
 
   models.SongList
     .bulkCreate(songs.map(name => {
@@ -76,9 +76,9 @@ exports.add = (req, res) => {
 exports.delete = (req, res) => {
   console.log("add approach")
 
-  let playlistId = req.params.playlistId;
-  let songs = req.body.songs ? req.body.songs : []
-  let userId = req.AppUser.userId;
+  const playlistId = req.params.playlistId;
+  const songs = req.body.songs ? req.body.songs : []
+  const userId = req.AppUser.userId;
 
   models.SongList
     .destroy({

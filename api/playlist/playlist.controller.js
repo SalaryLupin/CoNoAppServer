@@ -3,8 +3,8 @@ const moment = require('moment');
 
 exports.getPlaylist = (req, res, next) => {
 
-  let userId = req.AppUser.userId
-  let playlistId = req.params.playlistId
+  const userId = req.AppUser.userId
+  const playlistId = req.params.playlistId
   if (!playlistId || !Number(playlistId)) {
     req.Error.wrongParameter(res, "playlistId is needed")
   }
@@ -75,18 +75,18 @@ exports.add = (req, res) => {
 
   console.log("add approach")
 
-  let title = !req.body.title ? "Playlist" : req.body.title ;
-  let rawFriends = req.body.friends ? req.body.friends : [];
-  let place = req.body.place;
-  let timeStr = req.body.time;
-  let time = moment(timeStr, "YYYY.MM.dd HH:mm:ss").isValid() ? moment(timeStr, "YYYY.MM.dd HH:mm:ss") : null
+  const title = !req.body.title ? "Playlist" : req.body.title ;
+  const rawFriends = req.body.friends ? req.body.friends : [];
+  const place = req.body.place;
+  const timeStr = req.body.time;
+  const time = moment(timeStr, "YYYY.MM.dd HH:mm:ss").isValid() ? moment(timeStr, "YYYY.MM.dd HH:mm:ss") : null
 
-  let userId = req.AppUser.userId;
+  const userId = req.AppUser.userId;
   rawFriends.push(userId)
   console.log(rawFriends);
   // TODO: 친구 아이디 유효성 검사
 
-  let playlist = {}
+  const playlist = {}
   models.Playlist.create({
     title: title,
     place: place,
@@ -112,8 +112,8 @@ exports.add = (req, res) => {
 
 exports.leavePlaylist = (req, res) => {
 
-  let playlistId = req.params.playlistId;
-  let userId = req.AppUser.userId
+  const playlistId = req.params.playlistId;
+  const userId = req.AppUser.userId
 
   models.PlaylistShare
     .destroy({
@@ -131,8 +131,8 @@ exports.leavePlaylist = (req, res) => {
 
 exports.listMember = (req, res) => {
 
-  let playlistId = req.params.playlistId;
-  let userId = req.AppUser.userId
+  const playlistId = req.params.playlistId;
+  const userId = req.AppUser.userId
 
   models.PlaylistShare
     .findAll({
@@ -152,9 +152,9 @@ exports.listMember = (req, res) => {
 // 플레이리스트에서 유저를 초대하는 api
 exports.inviteMember = (req, res) => {
 
-  let playlistId = req.params.playlistId;
-  let userId = req.AppUser.userId
-  let friends = req.body.friends ? req.body.friends : []
+  const playlistId = req.params.playlistId;
+  const userId = req.AppUser.userId
+  const friends = req.body.friends ? req.body.friends : []
 
   models.PlaylistShare
     .bulkCreate(friends.map(name => {
