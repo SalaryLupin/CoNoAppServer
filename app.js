@@ -15,6 +15,7 @@ app.use(error.initModule)
 
 // router
 app.use("/api", require("./api"))
+app.use("/test", require("./test"))
 
 var sequelize = require('./models/index').sequelize;
 
