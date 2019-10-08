@@ -34,11 +34,11 @@ function makeRandomString(from, length) {
 
 exports.login = (req, res) => {
 
-  const userId = req.body.userId
-  const userPw = req.body.userPw
+  let userId = req.body.userId
+  let userPw = req.body.userPw
 
-  const authToken = ""
-  const accessToken = ""
+  let authToken = ""
+  let accessToken = ""
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
     return
@@ -49,9 +49,9 @@ exports.login = (req, res) => {
             throw new newErr.UserNotExistError(userId)
         } else {
 
-          const salt = user.salt
-          const hashPw = crypto.createHash("sha512").update(userPw + salt).digest("hex");
-          const dbPw = user.userPw
+          let salt = user.salt
+          let hashPw = crypto.createHash("sha512").update(userPw + salt).digest("hex");
+          let dbPw = user.userPw
 
           if (hashPw == dbPw){
             if (user.isAuthorized){
@@ -68,7 +68,7 @@ exports.login = (req, res) => {
     }
 
     const issueAuthTokens = (user) => {
-      const token = tokener.signAuthToken(user.userId)
+      let token = tokener.signAuthToken(user.userId)
       if (token) {
         authToken = token
         return user
@@ -79,7 +79,7 @@ exports.login = (req, res) => {
     }
 
     const issueAccessTokens = (user) => {
-      const token = tokener.signAccessToken(user.userId)
+      let token = tokener.signAccessToken(user.userId)
       if (token) {
         accessToken = token
         return user
@@ -129,7 +129,7 @@ exports.login = (req, res) => {
       .then(respond)
       .catch(err =>{
         console.log(err)
-        const name = err.name
+        let name = err.name
         if (name == "UserNotExistError") { req.Error.wrongParameter(res) }
         else if (name == "SMSAuthorizeError"){ req.Error.noAuthorization(res) }
         else { req.Error.internal(res) }
@@ -139,7 +139,7 @@ exports.login = (req, res) => {
 
 exports.logout = (req, res) => {
 
-  const userId = req.AppUser.userId
+  let userId = req.AppUser.userId
 
   models.User
     .update(
@@ -158,12 +158,12 @@ exports.logout = (req, res) => {
 
 exports.register = (req, res) => {
 
-  const userId = req.body.userId
-  const userPw = req.body.userPw
-  const songTags = req.body.songTags ? req.body.songTags : []
+  let userId = req.body.userId
+  let userPw = req.body.userPw
+  let songTags = req.body.songTags ? req.body.songTags : []
 
-  const salt = Math.round((new Date().valueOf() * Math.random())) + "";
-  const hashPassword = crypto.createHash("sha512").update(userPw + salt).digest("hex");
+  let salt = Math.round((new Date().valueOf() * Math.random())) + "";
+  let hashPassword = crypto.createHash("sha512").update(userPw + salt).digest("hex");
 
   if (!validateUser(userId, userPw)) {
     req.Error.wrongParameter(res, "userId or userPw")
@@ -180,7 +180,7 @@ exports.register = (req, res) => {
       res.json({ userId: result.userId })
     })
     .catch(err => {
-      const name = err.name
+      let name = err.name
 
       if (name == "SequelizeUniqueConstraintError"){ req.Error.duplicatedUser(res) }
       else { console.log(err); req.Error.internal(res) }
@@ -190,7 +190,7 @@ exports.register = (req, res) => {
 
 exports.getAuthMsg = (req, res) => {
 
-  const userId = req.body.userId
+  let userId = req.body.userId
 
   if (!userId || !validateUserId(userId)){
     req.Error.wrongParameter(res)
@@ -206,14 +206,14 @@ exports.getAuthMsg = (req, res) => {
   }
 
   const makeRandomNumber = (user) => {
-    const randomNumber = makeRandomString("0123456789", 6)
+    let randomNumber = makeRandomString("0123456789", 6)
     return { user: user, randomNumber: randomNumber }
   }
 
   const sendSMS  = (data) => {
     return new Promise((resolve, reject) =>{
-      const targets = [data.user.userId]
-      const body = "인증번호는 [" + data.randomNumber + "] 입니다."
+      let targets = [data.user.userId]
+      let body = "인증번호는 [" + data.randomNumber + "] 입니다."
       smsSender.sendSMS(targets, body, (err, result) => {
         if (err) {
           console.log(err)
@@ -227,7 +227,7 @@ exports.getAuthMsg = (req, res) => {
   }
 
   const makeToken = (data) => {
-    const token = tokener.signReqToken(data.user.userId, data.randomNumber)
+    let token = tokener.signReqToken(data.user.userId, data.randomNumber)
     if (token) {
       return token
     }
@@ -254,7 +254,7 @@ exports.getAuthMsg = (req, res) => {
     .then(respond)
     .catch((err) => {
       console.log(err)
-      const name = err.name
+      let name = err.name
       if (name == "UserNotExistError") {
         req.Error.wrongParameter(res)
       }
@@ -271,15 +271,15 @@ exports.getAuthMsg = (req, res) => {
 exports.postAuthMsg = (req, res) => {
 
   var token = coder.decrypt(req.body.token)
-  const number = req.body.number + ""
-  const userId = req.body.userId
+  let number = req.body.number + ""
+  let userId = req.body.userId
 
   if (!token || !number || !userId || !validateUserId(userId)){
     req.Error.wrongParameter(res)
     return
   }
 
-  const decoded = tokener.verifyToken(token)
+  let decoded = tokener.verifyToken(token)
   if (decoded) {
     if (decoded.req == number && decoded.userId == userId){
       models.User
@@ -310,8 +310,8 @@ exports.postAuthMsg = (req, res) => {
 
 exports.refreshToken =  (req, res) => {
 
-  const auth = coder.decrypt(req.body.auth)
-  const userId = req.body.userId
+  let auth = coder.decrypt(req.body.auth)
+  let userId = req.body.userId
 
   if (!auth || !userId) {
     req.Error.wrongParameter(res)

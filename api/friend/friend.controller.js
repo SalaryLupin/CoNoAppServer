@@ -2,8 +2,8 @@ const models = require("../../models")
 
 exports.addFriends = (req, res) => {
 
-  const userId = req.AppUser.userId
-  const friends = req.body.friends ? req.body.friends : []
+  let userId = req.AppUser.userId
+  let friends = req.body.friends ? req.body.friends : []
   friends = friends.map(name => { return { relatingUserId: userId, relatedUserId: name }})
 
   models.Relationship
@@ -20,8 +20,8 @@ exports.addFriends = (req, res) => {
 
 exports.deleteFriends = (req, res) => {
 
-  const userId = req.AppUser.userId
-  const friends = req.body.friends ? req.body.friends : []
+  let userId = req.AppUser.userId
+  let friends = req.body.friends ? req.body.friends : []
 
   models.Relationship
     .destroy(

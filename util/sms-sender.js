@@ -6,8 +6,8 @@ const config = require("../config/sms.js")
 module.exports = {
 
   sendSMS: (targets, body, callback) => {
-    const url = "https://api-sens.ncloud.com/v1/sms/services/" + config.serviceId + "/messages"
-    const options = {
+    let url = "https://api-sens.ncloud.com/v1/sms/services/" + config.serviceId + "/messages"
+    let options = {
       uri: url,
       method: "POST",
       headers: {
