@@ -2,7 +2,7 @@ const crypto = require("crypto")
 const tokenConfig = require("../config/token")
 
 let encryptKey = tokenConfig.encryptKey
-let iv = crypto.randomBytes()
+let iv = crypto.randomBytes(16)
 
 module.exports = {
 

@@ -19,7 +19,7 @@ app.use("/test", require("./test"))
 
 var sequelize = require('./models/index').sequelize;
 
-app.listen(80, function(){
+app.listen(25000, function(){
   console.log("서버가 열렸습니다.");
   sequelize.sync({ force: false })
 });
