@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha api/song/song.spec.js"
+    "test": "node_modules/.bin/mocha api/song/song.spec.js",
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
